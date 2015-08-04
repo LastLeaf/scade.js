@@ -33,6 +33,9 @@ Cancel running and pending animation at a specific time (cancel now if not speci
 `subject.skip(duration)`
 Skip animations for specified duration. Animations would be normally started and ended as if they have been run.
 
+`subject.destroy()`
+Destroys it. Frees the binding to animation frame generator.
+
 # LICENSE
 
 MIT
