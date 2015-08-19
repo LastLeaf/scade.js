@@ -1,6 +1,6 @@
 (function(exports){
     'use strict';
-    
+
     var frameFuncs = [];
 
     var frame = function(){
@@ -19,13 +19,19 @@
         var anis = [];
         var curVal = initVal;
 
+        var setVal = function(val){
+            abort();
+            curVal = val;
+        };
+
         var add = function(options){
             var startTime = options.startTime;
             var duration = options.duration || 0;
             var fromVal = options.fromVal;
             var toVal = ( options.toVal === undefined ? initVal : options.toVal );
-            var val = (options.timing && options.timing.val) || function(){};
-            var initProgress = (options.timing && options.timing.progress);
+            var timingFunc = options.timing || timing.linear();
+            var val = timingFunc.val;
+            var initProgress = timingFunc.progress;
             var oncancel = options.cancel || function(){};
             var onstart = options.start || function(){};
             var onabort = options.abort || function(){};
@@ -37,8 +43,9 @@
                 } else {
                     startTime = getTime();
                 }
+            } else {
+                abort(startTime);
             }
-            abort(startTime);
             if(fromVal !== undefined) {
                 startTime -= duration * initProgress(curVal, fromVal, toVal);
             }
@@ -46,7 +53,7 @@
             anis.push({
                 startTime: startTime,
                 duration: duration,
-                fromVal: fromVal,
+                fromVal: fromVal || undefined,
                 toVal: toVal,
                 val: val,
                 initProgress: initProgress,
@@ -95,6 +102,7 @@
                     continue;
                 }
                 if(!ani.started) {
+                    if(ani.fromVal === undefined) ani.fromVal = curVal;
                     ani.started = true;
                     ani.start();
                 }
@@ -125,13 +133,14 @@
         };
 
         return {
+            setVal: setVal,
             add: add,
             abort: abort,
             skip: skip,
             destroy: destroy
         };
     };
-    
+
     // timing functions
     var timing = {};
     timing.linear = function(){
